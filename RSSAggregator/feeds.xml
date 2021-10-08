@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feeds title="Top Stories">
+	<feed url="https://www.nasa.gov/rss/dyn/breaking_news.rss"
+		name="NASA Breaking News" file="nasa.html" />
+	<feed url="http://feeds.arstechnica.com/arstechnica/index.rss"
+		name="Ars Technica" file="ars.html" />
+	<feed url="https://rss.packetstormsecurity.com/news/"
+		name="News - Packet Storm" file="packetstorm.html" />
+	<feed url="http://www.osu.edu/rss.php?feed=Features&amp;limit=10"
+		name="Ohio State University Features" file="osu.html" />
+	<feed url="https://lexfridman.com/feed/podcast/"
+		name="Lex Fridman Podcast" file="lex.html" />
+	<feed url="http://feeds.feedburner.com/ear-biscuits?format=xml"
+		name="Ear Biscuits Podcast" file="earbiscuits.html" />
+	<feed url="https://news.yahoo.com/rss"
+		name="Yahoo News feed" file="yahoo.html" />
+</feeds>

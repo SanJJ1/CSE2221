@@ -235,24 +235,26 @@ public final class RSSAggregator {
     }
 
     /**
-     * Main method.
+     * Processes one XML RSS (version 2.0) feed from a given URL converting it
+     * into the corresponding HTML output file.
      *
-     * @param args
-     *            the command line arguments; unused here
+     * @param url
+     *            the URL of the RSS feed
+     * @param file
+     *            the name of the HTML output file
+     * @param out
+     *            the output stream to report progress or errors
+     * @updates out.content
+     * @requires out.is_open
+     * @ensures <pre>
+     * [reads RSS feed from url, saves HTML document with table of news items
+     *   to file, appends to out.content any needed messages]
+     * </pre>
      */
-    public static void main(String[] args) {
-        SimpleReader in = new SimpleReader1L();
-        SimpleWriter out = new SimpleWriter1L("output.html");
+    private static void processFeed(String url, String file, SimpleWriter out) {
 
-        /*
-         * Input the source URL.
-         */
-//        out.print("Enter the URL of an RSS 2.0 news feed: ");
-//        String url = in.nextLine();
-        String url = "http://www.osu.edu/rss.php?feed=Features&limit=10";
-//        url = "https://lexfridman.com/feed/podcast/";
-//        url = "http://feeds.feedburner.com/ear-biscuits?format=xml";
-//        url = "https://news.yahoo.com/rss";
+        SimpleWriter output = new SimpleWriter1L(file);
+
         /*
          * Read XML input and initialize XMLTree. If input is not legal XML,
          * this statement will fail.
@@ -263,17 +265,56 @@ public final class RSSAggregator {
          */
         XMLTree channel = xml.child(0);
 
-        outputHeader(channel, out);
+        outputHeader(channel, output);
 
         int items = channel.numberOfChildren();
         for (int i = 0; i < items; i++) {
             if (channel.child(i).label().equals("item")) {
-                processItem(channel.child(i), out);
+                processItem(channel.child(i), output);
             }
         }
 
-        outputFooter(out);
+        outputFooter(output);
 
+        output.close();
+
+        out.println("Finished generating html for " + url);
+
+    }
+
+    /**
+     * Main method.
+     *
+     * @param args
+     *            the command line arguments; unused here
+     */
+    public static void main(String[] args) {
+        SimpleReader in = new SimpleReader1L();
+        SimpleWriter out = new SimpleWriter1L();
+
+        SimpleWriter indexFile = new SimpleWriter1L("index.html");
+
+        String rssListUrl = "feeds.xml";
+        XMLTree main = new XMLTree1(rssListUrl);
+        String title = main.attributeValue("title");
+        indexFile.print("<html>\n\t<head>\n\t\t<title>" + title
+                + "</title>\n\t</head>\n\t<body>\n\t\t<h2>" + title
+                + "</h2>\n\t\t<ul>\n");
+
+        for (int i = 0; i < main.numberOfChildren(); i++) {
+            String url = main.child(i).attributeValue("url");
+            String name = main.child(i).attributeValue("name");
+            String file = main.child(i).attributeValue("file");
+            indexFile.println(
+                    "\t\t\t<li><a href=\"" + file + "\">" + name + "</a></li>");
+            processFeed(url, file, out);
+
+        }
+
+        indexFile.println("\t\t</ul>\n\t</body>\n</html>");
+
+        // Close output streams
+        indexFile.close();
         in.close();
         out.close();
     }
